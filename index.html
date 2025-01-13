@@ -3,126 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Schedule</title>
+    <title>Admin Panel</title>
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f7f7f7;
-            margin: 0;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
+            margin: 0;
         }
-        table {
-            width: 80%;
-            border-collapse: collapse;
-            background: #ffffff;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        caption {
-            font-size: 1.8em;
-            font-weight: bold;
-            padding: 15px;
-            color: #333333;
-            background-color: #f4f4f4;
-            border-bottom: 2px solid #dddddd;
+        .form-group {
+            margin-bottom: 15px;
         }
-        th {
-            background-color: #00aaff;
-            color: #ffffff;
-            text-transform: uppercase;
-            font-weight: 600;
-            padding: 15px;
-            text-align: center;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
         }
-        td {
-            padding: 12px 15px;
-            text-align: center;
-            font-size: 1.1em;
-            color: #555555;
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:nth-child(odd) {
-            background-color: #ffffff;
-        }
-        tr:hover {
-            background-color: #e0f7ff;
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
         }
-        td:nth-child(2) {
-            font-weight: bold;
-            color: #0088cc;
+        button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <table>
-        <caption>Weekly Schedule</caption>
-        <thead>
-            <tr>
-                <th>দিন</th>
-                <th>খোরাকি</th>
-                <th>তারিখ</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>শনিবার</td>
-                <td>২০০</td>
-                <td>০৪</td>
-            </tr>
-            <tr>
-                <td>রবিবার</td>
-                <td>৩০০ (সজিব)</td>
-                <td>০৫</td>
-            </tr>
-            <tr>
-                <td>সোমবার</td>
-                <td>৩০০</td>
-                <td>০৬</td>
-            </tr>
-            <tr>
-                <td>মঙ্গলবার</td>
-                <td>৩০০</td>
-                <td>০৭</td>
-            </tr>
-            <tr>
-                <td>বুধবার</td>
-                <td>৩০০</td>
-                <td>০৮</td>
-            </tr>
-            <tr>
-                <td>বৃহস্পতিবার</td>
-                <td>৩০০</td>
-                <td>০৯</td>
-            </tr>
-            <tr>
-                <td>শুক্রবার</td>
-                <td>৩০০</td>
-                <td>১০</td>
-            </tr>
-            <tr>
-                <td>শনিবার</td>
-                <td>৩০০</td>
-                <td>১১</td>
-            </tr>
-            <tr>
-                <td>রবিবার</td>
-                <td>৩০০</td>
-                <td>১২</td>
-            </tr>
-            <tr>
-                <td>সোমবার</td>
-                <td>( )</td>
-                <td>১৩</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="container">
+        <h1>Add Schedule</h1>
+        <form id="scheduleForm">
+            <div class="form-group">
+                <label for="day">দিন:</label>
+                <input type="text" id="day" name="day" required>
+            </div>
+            <div class="form-group">
+                <label for="food">খোরাকি:</label>
+                <input type="text" id="food" name="food" required>
+            </div>
+            <div class="form-group">
+                <label for="date">তারিখ:</label>
+                <input type="text" id="date" name="date" required>
+            </div>
+            <button type="submit">Add</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('scheduleForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const day = document.getElementById('day').value;
+            const food = document.getElementById('food').value;
+            const date = document.getElementById('date').value;
+
+            const response = await fetch('https://api.github.com/repos/xofikul1337/schedule/contents/index.html', {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'token YOUR_PERSONAL_ACCESS_TOKEN',
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+
+            const data = await response.json();
+            const content = atob(data.content);
+            const newEntry = `
+                <tr>
+                    <td>${day}</td>
+                    <td>${food}</td>
+                    <td>${date}</td>
+                </tr>
+            `;
+            const updatedContent = content.replace('</tbody>', `${newEntry}</tbody>`);
+            const encodedContent = btoa(updatedContent);
+
+            await fetch('https://api.github.com/repos/xofikul1337/schedule/contents/index.html', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'token YOUR_PERSONAL_ACCESS_TOKEN',
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({
+                    message: 'Add new schedule entry',
+                    content: encodedContent,
+                    sha: data.sha
+                })
+            });
+
+            alert('Schedule added successfully!');
+        });
+    </script>
 </body>
 </html>
